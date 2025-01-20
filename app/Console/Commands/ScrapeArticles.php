@@ -39,25 +39,27 @@ class ScrapeArticles extends Command
                 'travel' => 'https://www.bbc.com/travel',
                 'business' => 'https://www.bbc.com/business',
                 'news' => 'https://www.bbc.com/news',
+                'innovation' => 'https://www.bbc.com/innovation',
+                'culture' => 'https://www.bbc.com/culture',
+                'arts' => 'https://www.bbc.com/arts',
+                'home' => 'https://www.bbc.com',
             ],
             'theguardian' => [
                 'politics' => 'https://www.theguardian.com/politics',
                 'sports' => 'https://www.theguardian.com/sport',
                 'culture' => 'https://www.theguardian.com/culture',
+                'lifestyle' => 'https://www.theguardian.com/lifeandstyle',
             ],
             'nytimes' => [
                 'world' => 'https://www.nytimes.com/section/world',
                 'business' => 'https://www.nytimes.com/section/business',
-                'arts' => 'https://www.nytimes.com/spotlight/lifestyle',
+                'us' => 'https://www.nytimes.com/section/us',
+                'lifestyle' => 'https://www.nytimes.com/spotlight/lifestyle',
             ],
         ];
 
         // Initialize the browser
-        $browser = new HttpBrowser(HttpClient::create([
-            'headers' => [
-                'User-Agent' => 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36',
-            ],
-        ]));
+        $browser = new HttpBrowser(HttpClient::create());
 
         $allArticles = [];
 
@@ -76,7 +78,7 @@ class ScrapeArticles extends Command
             }
         }
 
-        // $this->info("Successfully saved " . count($allArticles) . " articles.");
+        $this->info("Successfully scraped " . count($allArticles) . " articles.");
 
         // Save all articles in chunks with a transaction
         $this->saveArticles($allArticles);
@@ -169,17 +171,18 @@ class ScrapeArticles extends Command
         if (empty($articles)) {
             $this->info("No articles to save.");
             return;
-        };
+        }
+        ;
 
         // Chunk articles to avoid memory overload and long transaction times
-        $chunkSize = 500; 
+        $chunkSize = 500;
         $chunks = array_chunk($articles, $chunkSize);
         try {
             // Wrap the whole operation in a transaction to ensure data integrity
             DB::transaction(function () use ($chunks) {
                 foreach ($chunks as $chunk) {
                     // Perform a bulk insert
-                    Article::insert($chunk);  
+                    Article::insert($chunk);
                 }
             });
 
@@ -189,74 +192,5 @@ class ScrapeArticles extends Command
         }
     }
 
-    //     private function saveArticles(array $articles): void
-// {
-//     if (empty($articles)) {
-//         $this->info("No articles to save.");
-//         return;
-//     }
-
-    //     $this->info("Saving articles...");
-//     // Chunk articles to avoid memory overload and long transaction times
-//     $chunkSize = 500; // Adjust based on your memory and database performance
-//     $chunks = array_chunk($articles, $chunkSize);
-
-    //     try {
-//         // Wrap the whole operation in a transaction to ensure data integrity
-//         DB::transaction(function () use ($chunks) {
-//             foreach ($chunks as $chunk) {
-//                 foreach ($chunk as $article) {
-//                     // Check if the article already exists by title and source
-//                     $existingArticle = Article::where('title', $article['title'])
-//                         ->where('source', $article['source'])
-//                         ->first();
-
-    //                     if ($existingArticle) {
-//                         // If article exists, update it
-//                         $existingArticle->update([
-//                             'description' => $article['description'],
-//                             'author' => $article['author'],
-//                             'category' => $article['category'],
-//                             'updated_at' => now(),
-//                         ]);
-//                     } else {
-//                         // If article doesn't exist, insert it
-//                         Article::create($article);
-//                     }
-//                 }
-//             }
-//         });
-
-    //         $this->info("Successfully saved " . count($articles) . " articles.");
-//     } catch (\Exception $e) {
-//         $this->error("Failed to save articles: " . $e->getMessage());
-//     }
-// }
-    // private function saveArticles(array $articles): void
-    // {
-    //     if (empty($articles)) {
-    //         $this->info("No articles to save.");
-    //         return;
-    //     }
-
-    //      $this-> info("Save articles");
-    //     // Chunk articles to avoid memory overload and long transaction times
-    //     $chunkSize = 500; // You can adjust the chunk size based on your memory and database performance
-    //     $chunks = array_chunk($articles, $chunkSize);
-
-    //     try {
-    //         // Wrap the whole operation in a transaction to ensure data integrity
-    //         DB::transaction(function () use ($chunks) {
-    //             foreach ($chunks as $chunk) {
-    //                 Article::upsert($chunk, ['title', 'source'], ['description', 'author', 'category', 'updated_at']);
-    //                 // Article::upsert($chunk, ['title'], ['description', 'author', 'source', 'category', 'updated_at']);
-    //             }
-    //         });
-
-    //         $this->info("Successfully saved " . count($articles) . " articles.");
-    //     } catch (\Exception $e) {
-    //         $this->error("Failed to save articles: " . $e->getMessage());
-    //     }
-    // }
 
 }

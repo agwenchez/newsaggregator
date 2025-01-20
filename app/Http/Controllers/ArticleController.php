@@ -7,44 +7,7 @@ use Illuminate\Http\Request;
 
 class ArticleController extends Controller
 {
-    public function filterArticles(Request $request)
-    {
-        $query = Article::query();
-
-        // Filter by source name
-        if ($request->filled('source_name')) {
-            $query->whereHas('source', function ($q) use ($request) {
-                $q->where('name', $request->source_name);
-            });
-        }
-
-        // Filter by category name
-        if ($request->filled('category_name')) {
-            $query->whereHas('categories', function ($q) use ($request) {
-                $q->where('name', $request->category_name);
-            });
-        }
-
-        // Filter by date range
-        if ($request->filled('start_date') && $request->filled('end_date')) {
-            $query->whereBetween('publish_date', [$request->start_date, $request->end_date]);
-        }
-
-        // Keyword search in title or description
-        if ($request->filled('keyword')) {
-            $query->where(function ($q) use ($request) {
-                $q->where('title', 'like', '%' . $request->keyword . '%')
-                    ->orWhere('description', 'like', '%' . $request->keyword . '%');
-            });
-        }
-
-        // Pagination for performance
-        $articles = $query->with('source', 'categories')->paginate(10);
-
-        return response()->json($articles);
-    }
-
-    public function filter(Request $request)
+    public function index(Request $request)
     {
         $query = Article::query();
 
