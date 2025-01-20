@@ -116,11 +116,7 @@ class ScrapeArticles extends Command
                 $articleHtmlElements = $crawler->filter('.dcr-f9aim1');
                 foreach ($articleHtmlElements as $articleHtmlElement) {
                     $articleCrawler = new Crawler($articleHtmlElement);
-                    // if ($articleCrawler->filter('.fc-item__title')->count() > 0) {
                     $title = $articleCrawler->filter('.card-headline')->text();
-                    // $description = $articleCrawler->filter('.fc-item__standfirst')->count() > 0
-                    //     ? $articleCrawler->filter('.fc-item__standfirst')->text()
-                    //     : 'No description available.';
                     $articles[] = [
                         'title' => $title,
                         'description' => $title,
@@ -130,7 +126,6 @@ class ScrapeArticles extends Command
                         'publish_date' => Carbon::now()->format('Y-m-d H:i:s'), // Format the date
                         // 'updated_at' => Carbon::now()->format('Y-m-d H:i:s'),   // Format the date
                     ];
-                    // }
                 }
                 break;
 
