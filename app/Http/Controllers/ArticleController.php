@@ -47,4 +47,35 @@ class ArticleController extends Controller
 
         return response()->json($articles, 200);
     }
+
+    /**
+     * Fetch articles based on the authenticated user's preferences.
+     */
+    public function fetchByPreference(Request $request)
+    {
+        $preferences = $request->user()->preferences;
+
+        if ($preferences->isEmpty()) {
+            return response()->json(['message' => 'No preferences found'], 404);
+        }
+
+        $query = Article::query();
+
+        // Apply preferences to the query
+        $preferences->each(function ($preference) use ($query) {
+            if ($preference->source) {
+                $query->orWhere('source', $preference->source);
+            }
+            if ($preference->category) {
+                $query->orWhere('category', $preference->category);
+            }
+            if ($preference->author) {
+                $query->orWhere('author', $preference->author);
+            }
+        });
+
+        $articles = $query->paginate(10);
+
+        return response()->json($articles, 200);
+    }
 }

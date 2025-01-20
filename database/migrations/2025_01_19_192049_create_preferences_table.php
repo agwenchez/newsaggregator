@@ -17,7 +17,7 @@ return new class extends Migration
             $table->string('category')->nullable(); // Preferred news categories
             $table->string('author')->nullable(); // Preferred authors
             $table->timestamps();
-
+            $table->unsignedBigInteger('user_id');
              // Foreign key constraint
              $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
         });
