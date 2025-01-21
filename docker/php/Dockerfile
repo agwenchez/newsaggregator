@@ -19,9 +19,6 @@ RUN apt-get update && apt-get install -y \
     curl \
     && apt-get clean && rm -rf /var/lib/apt/lists/*
 
-# Clear cache
-# RUN apt-get clean && rm -rf /var/lib/apt/lists/*
-
 # Install Composer (use official Composer image to get the latest version)
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 

@@ -53,7 +53,7 @@ class ScrapeArticles extends Command
             'nytimes' => [
                 'world' => 'https://www.nytimes.com/section/world',
                 'business' => 'https://www.nytimes.com/section/business',
-                'us' => 'https://www.nytimes.com/section/us',
+                // 'us' => 'https://www.nytimes.com/section/us',
                 'lifestyle' => 'https://www.nytimes.com/spotlight/lifestyle',
             ],
         ];
@@ -91,7 +91,7 @@ class ScrapeArticles extends Command
     {
         $articles = [];
 
-        switch ($source) {
+        switch($source) {
             case 'bbc':
                 $articleHtmlElements = $crawler->filter('.sc-b8778340-3');
                 foreach ($articleHtmlElements as $articleHtmlElement) {
@@ -152,6 +152,8 @@ class ScrapeArticles extends Command
                     ];
                 }
                 break;
+            default:
+            $articles;
         }
 
         return $articles;

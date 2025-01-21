@@ -9,22 +9,6 @@ use Illuminate\Validation\ValidationException;
 
 class AuthController extends Controller
 {
-    // public function register(Request $request)
-    // {
-    //     $request->validate([
-    //         'name' => 'required|string|max:255',
-    //         'email' => 'required|string|email|max:255|unique:users',
-    //         'password' => 'required|string|min:8',
-    //     ]);
-
-    //     $user = User::create([
-    //         'name' => $request->name,
-    //         'email' => $request->email,
-    //         'password' => Hash::make($request->password),
-    //     ]);
-
-    //     return response()->json(['user' => $user], 201);
-    // }
 
     public function register(Request $request)
     {
@@ -40,11 +24,17 @@ class AuthController extends Controller
                 'email' => $request->email,
                 'password' => Hash::make($request->password),
             ]);
+            // Generate token for the user
+            $token = $user->createToken('auth_token')->plainTextToken;
 
-            return response()->json(['user' => $user], 201);
+            return response()->json(['user' => $user, 'token' => $token], 201);
+        } catch (ValidationException $e) {
+            return response()->json([
+                'message' => $e->errors()['email'][0] ?? 'Failed to register user.'
+            ], 400);
         } catch (\Exception $e) {
             \Log::error('Error creating user: ' . $e->getMessage());
-            return response()->json(['message' => 'Failed to register user.'], 500);
+            return response()->json(['message' => 'Failed to register user here buana.'], 500);
         }
     }
 

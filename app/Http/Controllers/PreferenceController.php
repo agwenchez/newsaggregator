@@ -11,22 +11,23 @@ class PreferenceController extends Controller
      */
     public function index(Request $request)
     {
-        $user = $request->user();
-
-        if (!$user) {
-            return response()->json(['message' => 'Unauthenticated'], 401);
-        }
         try {
-            $preferences = $request->user()->preferences;
+            $user = $request->user();
 
-            if ($preferences->isEmpty()) {
-                return response()->json(['message' => 'No preferences found'], 404);
+            if (!$user) {
+                return response()->json(['message' => 'Unauthenticated'], 401);
+            }
+            try {
+                $preferences = $request->user()->preferences;
+                return response()->json(['preferences' => $preferences], 200);
+            } catch (\Exception $e) {
+                \Log::error('Error fetching preferences: ' . $e->getMessage());
+                return response()->json(['error' => 'Failed to fetch preferences' . $user], 500);
             }
 
-            return response()->json(['preferences' => $preferences], 200);
         } catch (\Exception $e) {
             \Log::error('Error fetching preferences: ' . $e->getMessage());
-            return response()->json(['error' => 'Failed to fetch preferences'], 500);
+            return response()->json(['message' => 'Failed to register user here buana.'], 500);
         }
     }
 
@@ -35,15 +36,21 @@ class PreferenceController extends Controller
      */
     public function store(Request $request)
     {
-        $request->validate([
-            'source' => 'nullable|string|max:255',
-            'category' => 'nullable|string|max:255',
-            'author' => 'nullable|string|max:255',
-        ]);
+        try {
 
-        $preference = $request->user()->preferences()->create($request->all());
+            $request->validate([
+                'source' => 'nullable|string|max:255',
+                'category' => 'nullable|string|max:255',
+                'author' => 'nullable|string|max:255',
+            ]);
 
-        return response()->json(['message' => 'Preference created', 'preference' => $preference], 201);
+            $preference = $request->user()->preferences()->create($request->all());
+
+            return response()->json(['message' => 'Preference created', 'preference' => $preference], 201);
+        } catch (\Exception $e) {
+            \Log::error('Error creating preference: ' . $e->getMessage());
+            return response()->json(['message' => 'Failed to create preference.'], 500);
+        }
     }
 
     /**
@@ -51,17 +58,23 @@ class PreferenceController extends Controller
      */
     public function update(Request $request, $id)
     {
-        $preference = $request->user()->preferences()->findOrFail($id);
+        try {
 
-        $request->validate([
-            'source' => 'nullable|string|max:255',
-            'category' => 'nullable|string|max:255',
-            'author' => 'nullable|string|max:255',
-        ]);
+            $preference = $request->user()->preferences()->findOrFail($id);
 
-        $preference->update($request->all());
+            $request->validate([
+                'source' => 'nullable|string|max:255',
+                'category' => 'nullable|string|max:255',
+                'author' => 'nullable|string|max:255',
+            ]);
 
-        return response()->json(['message' => 'Preference updated', 'preference' => $preference], 200);
+            $preference->update($request->all());
+
+            return response()->json(['message' => 'Preference updated', 'preference' => $preference], 200);
+        } catch (\Exception $e) {
+            \Log::error('Error updating preference: ' . $e->getMessage());
+            return response()->json(['message' => 'Failed to update preference.'], 500);
+        }
     }
 
     /**
@@ -69,9 +82,15 @@ class PreferenceController extends Controller
      */
     public function destroy(Request $request, $id)
     {
-        $preference = $request->user()->preferences()->findOrFail($id);
-        $preference->delete();
+        try {
 
-        return response()->json(['message' => 'Preference deleted'], 200);
+            $preference = $request->user()->preferences()->findOrFail($id);
+            $preference->delete();
+
+            return response()->json(['message' => 'Preference deleted'], 200);
+        } catch (\Exception $e) {
+            \Log::error('Error deleting prefernce: ' . $e->getMessage());
+            return response()->json(['message' => 'Failed to delete preferences.'], 500);
+        }
     }
 }
